@@ -1,0 +1,4 @@
+<!-- Launches the camera nodes for the main camera mast and the undercarriage camera. -->
+<launch>
+  <!-- TODO -->
+</launch>

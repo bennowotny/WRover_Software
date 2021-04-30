@@ -4,4 +4,5 @@
   <!-- TODO: science logic -->
   <!-- TODO: science control systems -->
   <!-- TODO: science drivers -->
+  <include file="$(find wr_hsi_camera)/launch/cams_science.launch"/>
 </launch>

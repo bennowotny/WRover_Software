@@ -20,6 +20,27 @@
       "build": {
         "provider": "pip"
       }
+    },
+    {
+      "name": "image_transport",
+      "build": {
+        "provider": "apt",
+        "package": "ros-noetic-image-transport"
+      }
+    },
+    {
+      "name": "theora_image_transport",
+      "build": {
+        "provider": "apt",
+        "package": "ros-noetic-theora-image-transport"
+      }
+    },
+    {
+      "name": "video_stream_opencv",
+      "build": {
+        "provider": "apt",
+        "package": "ros-noetic-video-stream-opencv"
+      }
     }
   ]
 }

@@ -1,5 +1,6 @@
 <!-- Launches the robot UI on the base station. -->
 <launch>
+  <include file="$(find wr_hsi_camera)/launch/cams_main.launch"/>
   <!-- TODO: ui -->
   
   <!-- placeholder wready server, since the UI should have the actual wready server -->

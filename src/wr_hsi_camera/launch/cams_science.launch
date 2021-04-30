@@ -1,0 +1,4 @@
+<!-- Launches the camera nodes for the science assembly's microscope and chemical test camera. -->
+<launch>
+  <!-- TODO -->
+</launch>
