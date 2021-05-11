@@ -1,4 +1,25 @@
 <!-- Launches the camera nodes for the main camera mast and the undercarriage camera. -->
 <launch>
-  <!-- TODO -->
+  <group ns="hsi">
+    <group ns="camera">
+      <node name="cam_mast" pkg="wr_hsi_camera" type="camera_control.py">
+        <param name="camera_name" value="cam_mast"/>
+        <param name="video_stream_provider" value="FIXME"/> <!-- FIXME get actual camera url -->
+        <param name="set_camera_fps" value="10"/>
+        <param name="buffer_queue_size" value="1"/>
+        <param name="fps" value="10"/>
+        <param name="frame_id" value="cam_mast"/>
+        <param name="camera_info_url" value="file:///$(find wr_hsi_camera)/config/cam_mast.yaml"/>
+      </node>
+      <node name="cam_under" pkg="wr_hsi_camera" type="camera_control.py">
+        <param name="camera_name" value="cam_under"/>
+        <param name="video_stream_provider" value="FIXME"/> <!-- FIXME get actual camera url -->
+        <param name="set_camera_fps" value="10"/>
+        <param name="buffer_queue_size" value="1"/>
+        <param name="fps" value="10"/>
+        <param name="frame_id" value="cam_under"/>
+        <param name="camera_info_url" value="file:///$(find wr_hsi_camera)/config/cam_under.yaml"/>
+      </node>
+    </group>
+  </group>
 </launch>

@@ -1,0 +1,8 @@
+<!-- Launches the camera nodes for the arm cameras. -->
+<launch>
+  <group ns="hsi">
+    <group ns="arm">
+      <!-- TODO: launch arm cameras -->
+    </group>
+  </group>
+</launch>

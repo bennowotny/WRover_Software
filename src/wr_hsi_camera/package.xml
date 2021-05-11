@@ -7,14 +7,18 @@
   <license>MIT</license>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
   <build_depend>image_transport</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>theora_image_transport</build_depend>
   <build_depend>video_stream_opencv</build_depend>
+  <build_export_depend>rospy</build_export_depend>
   <build_export_depend>image_transport</build_export_depend>
   <build_export_depend>sensor_msgs</build_export_depend>
   <build_export_depend>theora_image_transport</build_export_depend>
   <build_export_depend>video_stream_opencv</build_export_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
   <exec_depend>image_transport</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>theora_image_transport</exec_depend>

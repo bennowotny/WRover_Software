@@ -1,4 +1,27 @@
 <!-- Launches the camera nodes for the science assembly's microscope and chemical test camera. -->
 <launch>
-  <!-- TODO -->
+  <group ns="hsi">
+    <group ns="science">
+      <node name="cam_carousel" pkg="wr_hsi_camera" type="camera_control.py">
+        <param name="enabled_by_default", value="false"/>
+        <param name="camera_name" value="cam_carousel"/>
+        <param name="video_stream_provider" value="FIXME"/> <!-- FIXME get actual camera url -->
+        <param name="set_camera_fps" value="10"/>
+        <param name="buffer_queue_size" value="1"/>
+        <param name="fps" value="10"/>
+        <param name="frame_id" value="cam_mast"/>
+        <param name="camera_info_url" value="file:///$(find wr_hsi_camera)/config/cam_carousel.yaml"/>
+      </node>
+      <node name="cam_microscope" pkg="wr_hsi_camera" type="camera_control.py">
+        <param name="enabled_by_default", value="false"/>
+        <param name="camera_name" value="cam_microscope"/>
+        <param name="video_stream_provider" value="FIXME"/> <!-- FIXME get actual camera url -->
+        <param name="set_camera_fps" value="10"/>
+        <param name="buffer_queue_size" value="1"/>
+        <param name="fps" value="10"/>
+        <param name="frame_id" value="cam_under"/>
+        <param name="camera_info_url" value="file:///$(find wr_hsi_camera)/config/cam_microscope.yaml"/>
+      </node>
+    </group>
+  </group>
 </launch>
