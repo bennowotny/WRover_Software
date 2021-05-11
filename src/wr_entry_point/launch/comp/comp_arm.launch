@@ -3,4 +3,5 @@
   <include file="$(find wr_hci_hid)/launch/teleop_arm.launch"/>
   <!-- TODO: arm logic -->
   <!-- TODO: arm control systems -->
+  <include file="$(find wr_hsi_camera)/launch/cams_arm.launch"/>
 </launch>
