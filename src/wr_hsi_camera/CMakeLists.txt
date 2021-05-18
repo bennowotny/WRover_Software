@@ -12,8 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   image_transport
   sensor_msgs
-  theora_image_transport
-  video_stream_opencv
 )
 
 ## System dependencies are found with CMake's conventions
