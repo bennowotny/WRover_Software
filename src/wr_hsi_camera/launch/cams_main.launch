@@ -4,7 +4,7 @@
     <group ns="camera">
       <node name="cam_mast" pkg="wr_hsi_camera" type="camera_control.py">
         <param name="camera_name" value="cam_mast"/>
-        <param name="video_stream_provider" value="FIXME"/> <!-- FIXME get actual camera url -->
+        <param name="video_stream_provider" value="rstp://wrover-cam-mast.local"/>
         <param name="set_camera_fps" value="10"/>
         <param name="buffer_queue_size" value="1"/>
         <param name="fps" value="10"/>
@@ -13,7 +13,7 @@
       </node>
       <node name="cam_under" pkg="wr_hsi_camera" type="camera_control.py">
         <param name="camera_name" value="cam_under"/>
-        <param name="video_stream_provider" value="FIXME"/> <!-- FIXME get actual camera url -->
+        <param name="video_stream_provider" value="rstp://wrover-cam-under.local"/>
         <param name="set_camera_fps" value="10"/>
         <param name="buffer_queue_size" value="1"/>
         <param name="fps" value="10"/>
