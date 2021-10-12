@@ -1,0 +1,9 @@
+[submodule "src/wready"]
+	path = src/wready
+	url = ssh://git@github.com/WisconsinRobotics/wready
+[submodule "src/wreadinput"]
+	path = src/wreadinput
+	url = ssh://git@github.com/WisconsinRobotics/wreadinput
+[submodule "src/wroboclaw"]
+	path = src/wroboclaw
+	url = ssh://git@github.com/WisconsinRobotics/wroboclaw
