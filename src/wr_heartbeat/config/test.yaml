@@ -1,0 +1,8 @@
+heartbeats: 
+  - heartbeatName: "test1"
+    nominalFrequency: 100
+    nominalTolerance: 0.1
+monitors:
+  - monitorName: "test1"
+    nominalFrequency: 100
+    nominalTolerance: 0.1

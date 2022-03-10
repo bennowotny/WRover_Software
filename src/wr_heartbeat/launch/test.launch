@@ -1,0 +1,5 @@
+<launch>
+    <node name="wr_heartbeat" type="wr_heart_beat_monitor" pkg="wr_heartbeat">
+        <rosparam file="$(find wr_heartbeat)/config/test.yaml"/>
+    </node>
+</launch>
