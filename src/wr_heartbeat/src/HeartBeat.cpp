@@ -4,7 +4,7 @@
 #include <std_srvs/Empty.h>
 
 HeartBeat::HeartBeat(const std::string &heartbeatName, const FrequencyCharacteristics &freq, ros::NodeHandle &n, bool runAsync) : freq{freq}, name{heartbeatName}, initialPulseSent{false}{
-    this->heart = n.serviceClient<std_srvs::Empty>(heartbeatName, true);
+    this->heart = n.serviceClient<std_srvs::Empty>(heartbeatName);
     if(runAsync)
         this->autoBeat = n.createTimer(ros::Rate{freq.nominalFrequency}, &HeartBeat::autoPulse, this);
 }
