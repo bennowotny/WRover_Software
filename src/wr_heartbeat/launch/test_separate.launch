@@ -1,5 +1,5 @@
 <launch>
-    <node name="wr_heartbeat_monitor" type="wr_heart_beat_monitor" pkg="wr_heartbeat" output="screen">
+    <node name="wr_heartbeat_monitor" type="wr_heart_beat_monitor" pkg="wr_heartbeat" output="screen" launch-prefix="valgrind --leak-check=full --show-leak-kinds=all">
         <rosparam file="$(find wr_heartbeat)/config/test_monitor.yaml"/>
     </node>
     <node name="wr_heartbeat_heart" type="wr_heart_beat_monitor" pkg="wr_heartbeat" output="screen">
