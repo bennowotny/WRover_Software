@@ -22,7 +22,7 @@ std::unique_ptr<HeartBeat> HeartBeat::makeHeartBeat(XmlRpc::XmlRpcValue &rosPara
     std::string heartbeatName = rosParam["heartbeatName"];
     auto freq = FrequencyCharacteristics::makeFrequencyCharacteristics(rosParam);
 
-    return std::move(std::unique_ptr<HeartBeat>(new HeartBeat{heartbeatName, freq, n}));
+    return std::unique_ptr<HeartBeat>(new HeartBeat{heartbeatName, freq, n});
 }
 
 void HeartBeat::pulse(){

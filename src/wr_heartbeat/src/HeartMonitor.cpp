@@ -22,7 +22,7 @@ std::unique_ptr<HeartMonitor> HeartMonitor::makeHeartMonitor(XmlRpc::XmlRpcValue
     std::string monitorName = monitorRosParam["monitorName"];
     auto freq = FrequencyCharacteristics::makeFrequencyCharacteristics(monitorRosParam);
 
-    return std::move(std::unique_ptr<HeartMonitor>(new HeartMonitor{monitorName, freq, n}));
+    return std::unique_ptr<HeartMonitor>(new HeartMonitor{monitorName, freq, n});
 }
 
 bool HeartMonitor::registerHeartBeat(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
