@@ -7,7 +7,6 @@ from wr_logic_ai.msg import NavigationMsg
 from wr_drive_msgs.msg import DriveTrainCmd
 from geometry_msgs.msg import PoseStamped
 
-import time
 import math
 
 def updateHeading(data) -> None:
@@ -55,7 +54,7 @@ laser.scan_time = 1
 laser.range_min = 0
 laser.range_max = 150
 laser.ranges = getLaserRanges(0)
-laser.header.frame_id = "map"
+laser.header.frame_id = "laser"
 laser.intensities = []
 
 nav = NavigationMsg()
@@ -74,7 +73,7 @@ t = 0
 while not rospy.is_shutdown():
     
     laser.ranges = getLaserRanges(t)
-    # distanceData.publish(laser)
+    distanceData.publish(laser)
   
     zero_msg.header.seq = frameCount
     zero_msg.header.stamp = rospy.get_rostime()

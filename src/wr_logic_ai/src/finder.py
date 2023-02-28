@@ -7,7 +7,7 @@ from copy import deepcopy
 
 import pickle
 
-ROVER_WIDTH = 0
+ROVER_WIDTH = 2
 
 prevData = []
 
@@ -69,7 +69,7 @@ def get_valley(
 
     sector_count = len(data.ranges)
     rviz_data = deepcopy(data)
-    rviz_data.ranges = offset_lidar_data(data.ranges, sector_angle, True)
+    # rviz_data.ranges = offset_lidar_data(data.ranges, sector_angle, True)
     scan_rviz_pub.publish(rviz_data)
 
     # Get the smoothed histogram of the vision data
@@ -81,7 +81,8 @@ def get_valley(
         rangesDelayed[i] = data.ranges[i] - prevData[i] / 2
     prevData = data.ranges
 
-    hist = offset_lidar_data(gaussian_smooth.gaussian_filter1d(data.ranges, smoothing), sector_angle)
+    hist = gaussian_smooth.gaussian_filter1d(data.ranges, smoothing)
+    # hist = offset_lidar_data(gaussian_smooth.gaussian_filter1d(data.ranges, smoothing), sector_angle)
 
     # Write the sectors data to an output file for logging
     output_file = open('sectors.data', 'wb')
@@ -96,7 +97,6 @@ def get_valley(
 
     # For each sector in the histogram...
     for i in range(len(hist)):
-        print(hist[len(hist) // 2])
         # If the start of the vaprint(data.angle_increment)lley hasn't been set yet...
         if valley_start is None:
             # ...and the sector is below the threshold...
@@ -106,13 +106,21 @@ def get_valley(
 
         # If the start of the valley has been set and the current sector is above the threshold...
         elif hist[i] < threshold:
-            # Get the effective distance in degrees between the target angle and the sector
-            dist = get_target_distance(valley_start, i, target, sector_angle) # dist is the degree from target to current sector
-            # If current valley is closer to the target than the current best valley...
-            if dist < best_distance and check_valley_width(valley_start, i, hist[valley_start], hist[i], sector_angle):
-                # Replace the best distance and best valley
-                best_distance = dist
-                best_valley = [valley_start, i]
+            valley_end = i
+            print("i = " + str(i))
+            clearance = abs(math.atan(math.radians(sector_angle) * abs(valley_end - target))) * hist[valley_end]
+            print("clearance = " + str(clearance))
+            if clearance < ROVER_WIDTH / 2:
+                valley_end -= 2 * math.tan((ROVER_WIDTH / 2) / (hist[valley_end])) / math.radians(sector_angle)
+            print("valley_end = " + str(valley_end))
+            if valley_end > valley_start:
+                # Get the effective distance in degrees between the target angle and the sector
+                dist = get_target_distance(valley_start, valley_end, target, sector_angle) # dist is the degree from target to current sector
+                # If current valley is closer to the target than the current best valley...
+                if dist < best_distance and check_valley_width(valley_start, valley_end, hist[valley_start], hist[i], sector_angle):
+                    # Replace the best distance and best valley
+                    best_distance = dist
+                    best_valley = [valley_start, valley_end]
 
             # Since we are above the threshold limit, end the current valley
             valley_start = None
