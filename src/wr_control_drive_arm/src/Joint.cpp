@@ -14,6 +14,8 @@ Joint::Joint(std::string name,
       positionMonitor{std::move(positionMonitor)},
       motorSpeedDispatcher{std::move(motorSpeedDispatcher)},
       executeMotion{false},
+      target{0},
+      maxSpeed{0},
       controlLoopUpdateTimer{node.createTimer(ros::Rate{FEEDBACK_UPDATE_FREQUENCY_HZ}, &Joint::onFeedbackUpdateEvent, this, false, false)},
       controlLoopOutputSubscriber{node.subscribe("/control/arm/pid/"s + this->name + "/output", 1, &Joint::onControlLoopOutput, this)},
       controlLoopSetpointPublisher{node.advertise<std_msgs::Float64>("/control/arm/pid/"s + this->name + "/setpoint", 1)},
@@ -23,6 +25,7 @@ void Joint::setTarget(double target, double maxSpeed) {
     this->target = target;
     this->maxSpeed = maxSpeed;
     executeMotion = true;
+    // Timer is disabled by default until a motion is started
     controlLoopUpdateTimer.start();
 }
 
@@ -46,16 +49,19 @@ auto Joint::getName() const -> std::string {
 }
 
 void Joint::stop() {
+    // Completely disable motion on the joint
     executeMotion = false;
     controlLoopUpdateTimer.stop();
     motorSpeedDispatcher(0);
 }
 
 void Joint::onControlLoopOutput(const std_msgs::Float64::ConstPtr &msg) {
+    // Scale power to max speed
     auto cappedPowerUnsigned{std::min(std::abs(msg->data), std::abs(maxSpeed))};
     double cappedPower{0};
     if (msg->data != 0)
         cappedPower = (std::abs(msg->data) / msg->data) * cappedPowerUnsigned;
+    // Dispatch capped power
     motorSpeedDispatcher(executeMotion ? cappedPower : 0);
 }
 

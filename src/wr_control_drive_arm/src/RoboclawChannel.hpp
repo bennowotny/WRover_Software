@@ -1,6 +1,11 @@
 #ifndef ROBOCLAW_CHANNEL_H
 #define ROBOCLAW_CHANNEL_H
 
-enum class RoboclawChannel { A, B };
+/**
+ * @brief Represents the channels of a Roboclaw controller
+ *
+ */
+enum class RoboclawChannel { A,
+                             B };
 
 #endif

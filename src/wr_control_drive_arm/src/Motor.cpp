@@ -17,6 +17,7 @@ void Motor::setSpeed(double speed) {
     if (abs(speed) > 1)
         throw std::invalid_argument("speed must be between -1 and 1");
 
+    // Power message using standard required by WRoboclaw
     std_msgs::Int16 powerMsg{};
     powerMsg.data = static_cast<int16_t>(speed * INT16_MAX);
     motorSpeedPublisher.publish(powerMsg);

@@ -9,6 +9,7 @@ DifferentialJointToMotorSpeedConverter::DifferentialJointToMotorSpeedConverter(
       leftMotor{std::move(leftMotor)},
       rightMotor{std::move(rightMotor)} {}
 
+// TODO: Question necessity
 DifferentialJointToMotorSpeedConverter::DifferentialJointToMotorSpeedConverter(
     const DifferentialJointToMotorSpeedConverter &other)
     : cachedPitchSpeed{other.cachedPitchSpeed.load()},
@@ -16,6 +17,7 @@ DifferentialJointToMotorSpeedConverter::DifferentialJointToMotorSpeedConverter(
       leftMotor{other.leftMotor},
       rightMotor{other.rightMotor} {}
 
+// TODO: Question necessity
 DifferentialJointToMotorSpeedConverter::DifferentialJointToMotorSpeedConverter(
     DifferentialJointToMotorSpeedConverter &&other) noexcept
     : cachedPitchSpeed{other.cachedPitchSpeed.load()},
@@ -34,7 +36,12 @@ void DifferentialJointToMotorSpeedConverter::setRollSpeed(double speed) {
 }
 
 void DifferentialJointToMotorSpeedConverter::dispatchDifferentialSpeed() {
+    // TODO: Re-test guard effectiveness in MT environment
     // const std::lock_guard<std::recursive_mutex> guard{mutex};
+    /*
+     * This linear transformation is tuned based on the physical configuration of the arm.
+     * Test this in testDifferential.cpp
+     */
     auto m1Speed{-cachedPitchSpeed + (cachedRollSpeed * AVERAGE_SCALING_FACTOR)};
     auto m2Speed{-cachedPitchSpeed - (cachedRollSpeed * AVERAGE_SCALING_FACTOR)};
     leftMotor->setSpeed(m1Speed);

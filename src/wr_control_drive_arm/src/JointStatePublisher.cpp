@@ -1,6 +1,5 @@
 /**
  * @file JointStatePublisher.cpp
- * @author Ben Nowotny
  * @author Jack Zautner
  * @brief The executable file to run the joint state publisher
  * @date 2022-12-05
@@ -38,13 +37,23 @@ constexpr float TIMER_CALLBACK_DURATION = 1.0 / 50.0;
  */
 ros::Publisher jointStatePublisher;
 
+/**
+ * @brief The list of joint positions monitors and their joint names
+ *
+ */
 std::map<std::string, SingleEncoderJointPositionMonitor> namedJointPositionMonitors;
 
+/**
+ * @brief Publish the joint states for MoveIt feedback
+ *
+ * @param event ROS Timer event, unused in this callback
+ */
 void publishJointStates(const ros::TimerEvent &event) {
     std::vector<std::string> names;
     std::vector<double> positions;
     sensor_msgs::JointState js_msg;
 
+    // Get each joint's position
     for (auto &[name, monitor] : namedJointPositionMonitors) {
         names.push_back(name);
         positions.push_back(monitor());
@@ -52,11 +61,20 @@ void publishJointStates(const ros::TimerEvent &event) {
 
     js_msg.name = names;
     js_msg.position = positions;
+    // Stamp the joint state message, prevents ~53 year jumps in clocks
     js_msg.header.stamp = ros::Time::now();
     // Publish the Joint State message
     jointStatePublisher.publish(js_msg);
 }
 
+/**
+ * @brief Get the encoder configuration from ROS config files
+ * TODO: Refactor to shared library
+ *
+ * @param params ROS parameter dictionary
+ * @param jointName The joint to query
+ * @return EncoderConfiguration The configuration of the encoder for this joint
+ */
 auto getEncoderConfigFromParams(const XmlRpcValue &params, const std::string &jointName) -> EncoderConfiguration {
     return {.countsPerRotation = static_cast<int32_t>(params[jointName]["counts_per_rotation"]),
             .offset = static_cast<int32_t>(params[jointName]["offset"])};
@@ -72,15 +90,18 @@ auto getEncoderConfigFromParams(const XmlRpcValue &params, const std::string &jo
 auto main(int argc, char **argv) -> int {
 
     std::cout << "start main" << std::endl;
-    // // Initialize the current node as JointStatePublisherApplication
+    // Initialize the current node as JointStatePublisherApplication
     ros::init(argc, argv, "JointStatePublisher");
-    // // Create the NodeHandle to the current ROS node
+    // Create the NodeHandle to the current ROS node
     ros::NodeHandle n;
+    // ROS NodeHandle for private encoder configs
     ros::NodeHandle pn{"~"};
 
+    // Get encoder config dictionary
     XmlRpcValue encParams;
     pn.getParam("encoder_parameters", encParams);
 
+    // Create name/position monitor pairs in the map
     namedJointPositionMonitors.try_emplace("elbowPitch_joint",
 
                                            "aux1",

@@ -36,9 +36,22 @@ using XmlRpc::XmlRpcValue;
  */
 constexpr float CLOCK_RATE{50};
 
+/**
+ * @brief Max rate to produce warning messages
+ *
+ */
 constexpr double IK_WARN_RATE{1.0 / 2};
 
+/**
+ * @brief Max joint speed during motion
+ *
+ */
 constexpr double JOINT_SAFETY_MAX_SPEED{0.5};
+
+/**
+ * @brief Max joint speed to hold position
+ *
+ */
 constexpr double JOINT_SAFETY_HOLD_SPEED{0.3};
 
 /**
@@ -82,6 +95,7 @@ ros::ServiceClient enableServiceClient;
  */
 void execute(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal,
              Server *server) {
+    // Kill action if IK is currently disabled
     if (!IKEnabled) {
         server->setAborted();
         ROS_WARN_THROTTLE( // NOLINT(hicpp-no-array-decay,hicpp,hicpp-vararg,cppcoreguidelines-pro-bounds-array-to-pointer-decay, cppcoreguidelines-pro-type-vararg)
@@ -90,6 +104,7 @@ void execute(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal,
         return;
     }
 
+    // DEBUG: Print the target waypoint table for the current motion
     for (const auto &jointName : goal->trajectory.joint_names) {
         std::cout << jointName << "\t";
     }
@@ -101,13 +116,16 @@ void execute(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal,
         std::cout << std::endl;
     }
 
+    // For each waypoint in the current motion
     for (const auto &currTargetPosition : goal->trajectory.points) {
 
+        // Scale the joint power based on MoveIt estimation
         const double VELOCITY_MAX = abs(*std::max_element(
             currTargetPosition.velocities.begin(),
             currTargetPosition.velocities.end(),
             [](double lhs, double rhs) -> bool { return abs(lhs) < abs(rhs); }));
 
+        // Give each waypoint it's target/max speed for the current waypoint
         for (uint32_t i = 0; i < goal->trajectory.joint_names.size(); ++i) {
             auto jointVelocity{JOINT_SAFETY_HOLD_SPEED};
             if (VELOCITY_MAX != 0)
@@ -120,13 +138,21 @@ void execute(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal,
     auto waypointComplete{false};
     ros::Rate updateRate{CLOCK_RATE};
 
+    /**
+     * While...
+     * 1. The waypoint is not yet complete (as reported by the joints)
+     * 2. ROS has not died
+     * 3. There is not a more recent target available
+     */
     while (!waypointComplete && ros::ok() && !server->isNewGoalAvailable()) {
+        // Determine if the waypoint is complete
         waypointComplete = true;
         for (const auto &[_, joint] : namedJointMap) {
             waypointComplete &= joint->hasReachedTarget();
-            if(!joint->hasReachedTarget())
+            if (!joint->hasReachedTarget())
                 std::cout << "Waiting on joint " << _ << std::endl;
         }
+        // Throttle CPU usage
         updateRate.sleep();
     }
 
@@ -139,6 +165,13 @@ void execute(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal,
     std::cout << "Action Complete!" << std::endl;
 }
 
+/**
+ * @brief Get the encoder configuration from ROS config files
+ *
+ * @param params ROS parameter dictionary
+ * @param jointName The joint to query
+ * @return EncoderConfiguration The configuration of the encoder for this joint
+ */
 auto getEncoderConfigFromParams(const XmlRpcValue &params, const std::string &jointName) -> EncoderConfiguration {
     return {.countsPerRotation = static_cast<int32_t>(params[jointName]["counts_per_rotation"]),
             .offset = static_cast<int32_t>(params[jointName]["offset"])};
@@ -158,8 +191,10 @@ auto main(int argc, char **argv) -> int {
     ros::init(argc, argv, "ArmControlActionServer");
     // Create the NodeHandle to the current ROS node
     ros::NodeHandle n;
+    // Create a private NodeHandle for the ROS parameters in config files
     ros::NodeHandle pn{"~"};
 
+    // Get the encoder parameter dictionary to query later
     XmlRpcValue encParams;
     pn.getParam("encoder_parameters", encParams);
 
@@ -176,6 +211,8 @@ auto main(int argc, char **argv) -> int {
     const auto wristLeftMotor{std::make_shared<Motor>("aux2"s, RoboclawChannel::A, n)};
     const auto wristRightMotor{std::make_shared<Motor>("aux2"s, RoboclawChannel::B, n)};
 
+    // Create position monitors for the joints
+    // Made as an object for isolation to reflect potential changes to mechanical design
     const auto turntablePositionMonitor{std::make_shared<SingleEncoderJointPositionMonitor>(
         "aux0"s,
         RoboclawChannel::A,
@@ -207,6 +244,7 @@ auto main(int argc, char **argv) -> int {
         getEncoderConfigFromParams(encParams, "wristRoll"),
         n)};
 
+    // Create the joint-to-motor speed converters for each joint (set)
     const auto turntableSpeedConverter{std::make_shared<DirectJointToMotorSpeedConverter>(turntableMotor, MotorSpeedDirection::REVERSE)};
     const auto shoulderSpeedConverter{std::make_shared<DirectJointToMotorSpeedConverter>(shoulderMotor, MotorSpeedDirection::REVERSE)};
     const auto elbowSpeedConverter{std::make_shared<DirectJointToMotorSpeedConverter>(elbowMotor, MotorSpeedDirection::REVERSE)};
@@ -217,6 +255,10 @@ auto main(int argc, char **argv) -> int {
 
     std::cout << "init joints" << std::endl;
 
+    // Create the virtual joint
+    // Due to physical configuration, each joint is given (via parameter) its:
+    // * Method to measure position
+    // * Method to dispatch motor speeds
     namedJointMap.insert({"turntable_joint", std::make_unique<Joint>(
                                                  "turntable"s,
                                                  [turntablePositionMonitor]() -> double { return (*turntablePositionMonitor)(); },
@@ -256,6 +298,7 @@ auto main(int argc, char **argv) -> int {
     server.start();
     std::cout << "server started" << std::endl;
 
+    // TODO: Create arbitration service
     enableServiceServer = n.advertiseService(
         "start_IK",
         static_cast<boost::function<bool(std_srvs::Trigger::Request &,
@@ -268,6 +311,7 @@ auto main(int argc, char **argv) -> int {
                 return true;
             }));
 
+    // TODO: Create arbitration service
     enableServiceClient =
         n.serviceClient<std_srvs::Trigger>("PLACEHOLDER_NAME");
 
