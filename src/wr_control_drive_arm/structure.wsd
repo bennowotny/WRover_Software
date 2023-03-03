@@ -20,6 +20,8 @@ class Motor{
     + bool getOverCurrentStatus()
 }
 
+note right: Represents a hardware motor \n(speed and current representations)
+
 Motor --> RoboclawChannel
 
 class EncoderJointPositionMonitor {
@@ -54,8 +56,12 @@ class Joint{
     + void stop()  
 }
 
+note right : A virtual joint in the \nMoveIt configuration of the arm
+
 Joint --> EncoderJointPositionMonitor : via function parameter <double()>
+note right : How does a joint know \nits position?
 <> speedConversion
+note right of speedConversion : How does a joint set a \nhardware speed?
 Joint --> speedConversion : via function parameter <void(double)>
 speedConversion --> DirectJointToMotorSpeedConverter : as functor
 speedConversion --> DifferentialJointToMotorSpeedConverter::setPitchSpeed : as function pointer
